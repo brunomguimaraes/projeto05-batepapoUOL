@@ -1,0 +1,97 @@
+* {
+    box-sizing: border-box;
+}
+
+.top {
+    width: 375px;
+    height: 80px;
+    background-color:#FFFFFF;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+.img-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo {
+    width: 75px;
+    height: 53px;
+    margin-top: 16px;
+    margin-left: 22px;
+}
+
+.vector {
+    width: 42.19px;
+    height: 30.94px;
+    margin-right: 22px;
+}
+
+.container-message {
+    width: 375px;
+    margin-top: 20px;
+}
+
+.status {
+    background-color: #DCDCDC;
+    height: 40px;
+    margin-bottom: 5px;
+    display: flex;
+    align-items: center;
+    padding: 0 5px;
+}
+
+.normal {
+    background-color: blue;
+    height: 40px;
+    margin-bottom: 5px;
+    display: flex;
+    align-items: center;
+    padding: 0 5px
+}
+
+.reservado {
+    background-color: #FFDEDE;
+    height: 40px;
+    margin-bottom: 5px;
+    display: flex;
+    align-items: center;
+    padding: 0 5px
+}
+
+
+.enviarmensagem {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 375px;
+    height: 80px;
+    background-color: #FFFFFF;
+    box-shadow: 0px -4px 6px rgba(0, 0, 0, 0.05);
+    position: fixed;
+    bottom: 0;
+}
+
+input {
+    width: 350px;
+    height: 60px;
+    border: none;
+    outline: none;
+    padding-left: 5px;
+
+}
+
+button {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    padding-right: 10px;
+    background-color: #992c2c;
+    border: 0;
+}
+ button img {
+     width: 26px;
+     position: relative;
+     right: 6px;
+ }

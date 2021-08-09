@@ -1,5 +1,6 @@
 const user = prompt ("Qual seu nome?");
 let previousMessage = "";
+let messageCompleted = '';
 
 function enterChat () {
     const promise = axios.post('https://mock-api.bootcamp.respondeai.com.br/api/v3/uol/participants',
@@ -49,43 +50,56 @@ function getMessage() {
 function formulatingMessages (message) {
     const messageArea = document.querySelector(".containerMessage ul");
     messageArea.innerHTML = '';
-    let messageCompleted = '';
+    messageCompleted = '';
 
     for (i= 0; i < message.data.length ; i++) {
-        if (message.data[i].type === "status") {
-            messageCompleted = `<li class="status"> <span> 
-            <span class="time">(${message.data[i].time})</span> 
-            <strong>${message.data[i].from}</strong> 
-            ${message.data[i].text}
-            </span></li> `
-
-        }
-        if (message.data[i].type === "message"){
-            messageCompleted = `<li class="public"> <span> 
-            <span class="time">(${message.data[i].time})</span> 
-            <strong>${message.data[i].from}</strong> 
-            para <strong>${message.data[i].to}:</strong>
-            ${message.data[i].text}
-            </span></li> `
-
-        }
-        if (message.data[i].type === "private_message"){
-            messageCompleted = `<li class="private"> <span> 
-            <span class="time">(${message.data[i].time})</span> 
-            <strong>${message.data[i].from}</strong> 
-            reservadamente para <strong>${message.data[i].to}:</strong>
-            ${message.data[i].text}
-            </span></li> `
-
-        }
-        if (message.data[i].type === "message" || 
-            message.data[i].type === "status" || 
-            message.data[i].from === user || 
-            message.data[i].to === user) { 
-                messageArea.innerHTML += messageCompleted;
-        }
+        isStatus (message, i);
+        isPublic (message, i);
+        isPrivate (message, i);
+        shouldUserSeeMessage(message, i, messageArea);
     }
     scroll ();
+}
+
+function isStatus (message, i) {
+    if (message.data[i].type === "status") {
+        messageCompleted = `<li class="status"> <span> 
+        <span class="time">(${message.data[i].time})</span> 
+        <strong>${message.data[i].from}</strong> 
+        ${message.data[i].text}
+        </span></li> `
+    }
+}
+
+function isPublic (message, i) {
+    if (message.data[i].type === "message") {
+        messageCompleted = `<li class="public"> <span> 
+        <span class="time">(${message.data[i].time})</span> 
+        <strong>${message.data[i].from}</strong> 
+        para <strong>${message.data[i].to}:</strong>
+        ${message.data[i].text}
+        </span></li> `
+    }
+}
+
+function isPrivate (message, i) {
+    if (message.data[i].type === "private_message") {
+        messageCompleted = `<li class="private"> <span> 
+        <span class="time">(${message.data[i].time})</span> 
+        <strong>${message.data[i].from}</strong> 
+        reservadamente para <strong>${message.data[i].to}:</strong>
+        ${message.data[i].text}
+        </span></li> `
+    }
+}
+
+function shouldUserSeeMessage (message, i, messageArea) {
+    if (message.data[i].type === "message" || 
+        message.data[i].type === "status" || 
+        message.data[i].from === user || 
+        message.data[i].to === user) { 
+            messageArea.innerHTML += messageCompleted;
+    }
 }
 
 function scroll () {
@@ -110,6 +124,8 @@ function sendMessage () {
 
     promise.then (getMessage);
     promise.catch (errorSending);
+
+    resetInput();
 }
 
 function clickEnter () {
@@ -123,6 +139,11 @@ function clickEnter () {
     );
 }
 clickEnter();
+
+function resetInput () {
+    let input = document.querySelector("input");
+    input.value = '';
+}
 
 function errorSending (error) {
     alert ('Ocorreu um error no envio, a página será atualizada');

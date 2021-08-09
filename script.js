@@ -1,4 +1,5 @@
 const user = prompt ("qual a vossa graça?");
+let mensagemQueTavaAntes = "";
 
 function entrarNaSala () {
     const promise = axios.post('https://mock-api.bootcamp.respondeai.com.br/api/v3/uol/participants',
@@ -33,6 +34,7 @@ function userConnected () {
 
 function manterConexão () {
     setInterval (userConnected, 5000);
+    setInterval (buscarMensagem, 3000);
 
 }
 manterConexão();
@@ -42,3 +44,60 @@ function errorConnection () {
     window.location.reload();
 }
 //termina o manter conexão 
+
+//começa receber mensagem 
+
+function buscarMensagem() {
+    const promise = axios.get('https://mock-api.bootcamp.respondeai.com.br/api/v3/uol/messages');
+    promise.then(pegarMensagem);
+}
+
+function pegarMensagem (mensagem) {
+    const messageArea = document.querySelector(".container-message ul");
+    messageArea.innerHTML = '';
+    let messageCompleted = '';
+
+    for (i= 0; i < mensagem.data.length ; i++) {
+        if (mensagem.data[i].type === "status") {
+            messageCompleted = `<li class="status"> <span> 
+            <span class="time">(${mensagem.data[i].time})</span> 
+            <strong>${mensagem.data[i].from}</strong> 
+            ${mensagem.data[i].text}
+            </span></li> `
+
+        }
+        if (mensagem.data[i].type === "message"){
+            messageCompleted = `<li class="normal"> <span> 
+            <span class="time">(${mensagem.data[i].time})</span> 
+            <strong>${mensagem.data[i].from}</strong> 
+            para <strong>${mensagem.data[i].to}:</strong>
+            ${mensagem.data[i].text}
+            </span></li> `
+
+        }
+        if (mensagem.data[i].type === "private_message"){
+            messageCompleted = `<li class="reservado"> <span> 
+            <span class="time">(${mensagem.data[i].time})</span> 
+            <strong>${mensagem.data[i].from}</strong> 
+            reservadamente para <strong>${mensagem.data[i].to}:</strong>
+            ${mensagem.data[i].text}
+            </span></li> `
+
+        }
+        if (mensagem.data[i].type === "message" || 
+            mensagem.data[i].type === "status" || 
+            mensagem.data[i].from === user || 
+            mensagem.data[i].to === user){ 
+                messageArea.innerHTML += messageCompleted;
+
+        }
+      
+    }
+    const ultimoElemento = document.querySelector (".container-message li:last-of-type");
+    if(ultimoElemento.innerHTML !== mensagemQueTavaAntes.innerHTML) {
+        ultimoElemento.scrollIntoView();
+
+    }
+    mensagemQueTavaAntes = ultimoElemento;
+    
+}

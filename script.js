@@ -101,3 +101,32 @@ function pegarMensagem (mensagem) {
     mensagemQueTavaAntes = ultimoElemento;
     
 }
+
+//aqui começa enviar menssagem
+function sendMessage () {
+    let text = document.querySelector("input").value;
+    const promise = axios.post ('https://mock-api.bootcamp.respondeai.com.br/api/v3/uol/messages',
+    {
+    from: user,
+	to: "todos",
+	text: text,
+	type: "message"
+    }
+    ); 
+    promise.then (buscarMensagem);
+    promise.catch (errorSending);
+    
+}
+let input = document.querySelector("input");
+input.addEventListener ("keyup", function (event){
+    if (event.key === "Enter") {
+        event.preventDefault();
+        sendMessage();
+    }
+}
+); 
+
+function errorSending (error) {
+    alert ('Ocorreu um erro no envio, a página será atualizada')
+    window.location.reload();
+}

@@ -1,108 +1,102 @@
-const user = prompt ("qual a vossa graça?");
-let mensagemQueTavaAntes = "";
+const user = prompt ("Qual seu nome?");
+let previousMessage = "";
 
-function entrarNaSala () {
+function enterChat () {
     const promise = axios.post('https://mock-api.bootcamp.respondeai.com.br/api/v3/uol/participants',
     {
         name: user
     }
     );
-    promise.catch (quandoErro);
 
+    promise.catch (isError);
 }
-entrarNaSala();
+enterChat();
 
-function quandoErro(erro) {
-    if (erro.response.status === 400){
-        alert("já existe um usuário com esse nome ou o campo está vazio, por favor insira um nome válido");
+function isError(error) {
+    if (error.response.status === 400){
+        alert("Já existe um usuário com esse nome ou o campo está vazio, por favor insira um nome válido");
     }
     window.location.reload();
-
 }
-//termina meu entrar na sala 
 
-//começa manter conexão
 function userConnected () {
     const promise = axios.post('https://mock-api.bootcamp.respondeai.com.br/api/v3/uol/status',
     {
         name: user
     }
     );
+
     promise.catch(errorConnection);
-
 }
 
-function manterConexão () {
+function keepConnection () {
     setInterval (userConnected, 5000);
-    setInterval (buscarMensagem, 3000);
+    setInterval (getMessage, 3000);
 
 }
-manterConexão();
+keepConnection();
 
 function errorConnection () {
-    alert ("Você perdeu a conexão");
+    alert ("Você perdeu a conexão, a página será atualizada");
     window.location.reload();
 }
-//termina o manter conexão 
 
-//começa receber mensagem 
-
-function buscarMensagem() {
+function getMessage() {
     const promise = axios.get('https://mock-api.bootcamp.respondeai.com.br/api/v3/uol/messages');
-    promise.then(pegarMensagem);
+    promise.then(formulatingMessages);
 }
 
-function pegarMensagem (mensagem) {
-    const messageArea = document.querySelector(".container-message ul");
+function formulatingMessages (message) {
+    const messageArea = document.querySelector(".containerMessage ul");
     messageArea.innerHTML = '';
     let messageCompleted = '';
 
-    for (i= 0; i < mensagem.data.length ; i++) {
-        if (mensagem.data[i].type === "status") {
+    for (i= 0; i < message.data.length ; i++) {
+        if (message.data[i].type === "status") {
             messageCompleted = `<li class="status"> <span> 
-            <span class="time">(${mensagem.data[i].time})</span> 
-            <strong>${mensagem.data[i].from}</strong> 
-            ${mensagem.data[i].text}
+            <span class="time">(${message.data[i].time})</span> 
+            <strong>${message.data[i].from}</strong> 
+            ${message.data[i].text}
             </span></li> `
 
         }
-        if (mensagem.data[i].type === "message"){
-            messageCompleted = `<li class="normal"> <span> 
-            <span class="time">(${mensagem.data[i].time})</span> 
-            <strong>${mensagem.data[i].from}</strong> 
-            para <strong>${mensagem.data[i].to}:</strong>
-            ${mensagem.data[i].text}
+        if (message.data[i].type === "message"){
+            messageCompleted = `<li class="public"> <span> 
+            <span class="time">(${message.data[i].time})</span> 
+            <strong>${message.data[i].from}</strong> 
+            para <strong>${message.data[i].to}:</strong>
+            ${message.data[i].text}
             </span></li> `
 
         }
-        if (mensagem.data[i].type === "private_message"){
-            messageCompleted = `<li class="reservado"> <span> 
-            <span class="time">(${mensagem.data[i].time})</span> 
-            <strong>${mensagem.data[i].from}</strong> 
-            reservadamente para <strong>${mensagem.data[i].to}:</strong>
-            ${mensagem.data[i].text}
+        if (message.data[i].type === "private_message"){
+            messageCompleted = `<li class="private"> <span> 
+            <span class="time">(${message.data[i].time})</span> 
+            <strong>${message.data[i].from}</strong> 
+            reservadamente para <strong>${message.data[i].to}:</strong>
+            ${message.data[i].text}
             </span></li> `
 
         }
-        if (mensagem.data[i].type === "message" || 
-            mensagem.data[i].type === "status" || 
-            mensagem.data[i].from === user || 
-            mensagem.data[i].to === user){ 
+        if (message.data[i].type === "message" || 
+            message.data[i].type === "status" || 
+            message.data[i].from === user || 
+            message.data[i].to === user) { 
                 messageArea.innerHTML += messageCompleted;
-
         }
-      
     }
-    const ultimoElemento = document.querySelector (".container-message li:last-of-type");
-    if(ultimoElemento.innerHTML !== mensagemQueTavaAntes.innerHTML) {
-        ultimoElemento.scrollIntoView();
-
-    }
-    mensagemQueTavaAntes = ultimoElemento;
-    
+    scroll ();
 }
 
-//aqui começa enviar menssagem
+function scroll () {
+    const lastMessage = document.querySelector (".containerMessage li:last-of-type");
+    if(lastMessage.innerHTML !== previousMessage.innerHTML) {
+        lastMessage.scrollIntoView();
+
+    }
+    previousMessage = lastMessage;
+}
+
 function sendMessage () {
     let text = document.querySelector("input").value;
     const promise = axios.post ('https://mock-api.bootcamp.respondeai.com.br/api/v3/uol/messages',
@@ -113,20 +107,24 @@ function sendMessage () {
 	type: "message"
     }
     ); 
-    promise.then (buscarMensagem);
+
+    promise.then (getMessage);
     promise.catch (errorSending);
-    
 }
-let input = document.querySelector("input");
-input.addEventListener ("keyup", function (event){
-    if (event.key === "Enter") {
-        event.preventDefault();
-        sendMessage();
+
+function clickEnter () {
+    let input = document.querySelector("input");
+    input.addEventListener ("keyup", function (event) {
+        if (event.key === "Enter") {
+            event.preventDefault();
+            sendMessage();
+        }
     }
+    );
 }
-); 
+clickEnter();
 
 function errorSending (error) {
-    alert ('Ocorreu um erro no envio, a página será atualizada')
+    alert ('Ocorreu um error no envio, a página será atualizada');
     window.location.reload();
 }
